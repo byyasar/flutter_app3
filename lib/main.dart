@@ -1,7 +1,8 @@
 
 import 'package:flutter/material.dart';
 
-import 'kamera.dart';
+import 'gonder.dart';
+
 
 
 void main() => runApp(MyApp());
@@ -15,10 +16,9 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primaryColor: Colors.red[700],
       ),
-      home: KameraWidget(),
+      home: GonderWidget(),
       routes: {
-        //Kamera.pageRoute: (context) => Kamera(),
-
+        GonderWidget.pageRoute: (context) => GonderWidget(),
       },
     );
   }

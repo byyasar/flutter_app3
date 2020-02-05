@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 
-class GongerWidget extends StatefulWidget {
+class GonderWidget extends StatefulWidget {
+  static final String pageRoute='/gonder';
   @override
-  _GongerWidgetState createState() => _GongerWidgetState();
+  _GonderWidgetState createState() => _GonderWidgetState();
 }
 
-class _GongerWidgetState extends State<GongerWidget> {
+class _GonderWidgetState extends State<GonderWidget> {
+
   @override
-  const
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
