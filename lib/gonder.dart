@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app3/imageupload.dart';
 import 'package:flutter_app3/kamera.dart';
 
 class GonderWidget extends StatefulWidget {
@@ -24,12 +25,23 @@ class _GonderWidgetState extends State<GonderWidget> {
             padding: const EdgeInsets.all(1.0),
             child: Container(
               color: Colors.red,
-              child: RaisedButton(
-                color: Colors.yellow,
-                child: Text("Kameradan resim çek"),
-                onPressed: () {
-                  Navigator.of(context).pushNamed(KameraWidget.pageRoute);
-                },
+              child: Column(
+                children: <Widget>[
+                  RaisedButton(
+                    color: Colors.yellow,
+                    child: Text("Kameradan resim çek"),
+                    onPressed: () {
+                      Navigator.of(context).pushNamed(KameraWidget.pageRoute);
+                    },
+                  ),
+                  RaisedButton(
+                    color: Colors.yellow,
+                    child: Text("Upload image resim çek"),
+                    onPressed: () {
+                      Navigator.of(context).pushNamed(MyAppImage.pageRoute);
+                    },
+                  )
+                ],
               ),
             ),
           ),
@@ -38,3 +50,5 @@ class _GonderWidgetState extends State<GonderWidget> {
     );
   }
 }
+
+//MyAppImage

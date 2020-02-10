@@ -1,6 +1,8 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 
 class KameraWidget extends StatefulWidget {
   static final String pageRoute = "/kamera";
@@ -17,6 +19,7 @@ void initState() {
 class _KameraWidgetState extends State<KameraWidget> {
   File _image;
   bool _isButtonDisabled = false;
+  final String ipadress="http://192.168.43.161:5000/yukle";
 
 
 
@@ -72,8 +75,30 @@ class _KameraWidgetState extends State<KameraWidget> {
             RaisedButton(
               child: Text("Gonder"),
 
-                onPressed: _isButtonDisabled ==false? null : () {
+                onPressed: _isButtonDisabled ==false? null : () async{
+
+                /*List<int> imageBytes = _image.readAsBytesSync();
+                String base64Image = Base64Codec().encode(imageBytes);
+                    //.encode(imageBytes);
                 print("gönder tıklandı");
+                print(base64Image);*/
+
+                var url = Uri.parse("http://192.168.1.3:5000/yukle");
+                var request = http.MultipartRequest("POST", Uri.parse(url.toString()));
+                //add text fields
+                //request.fields["text_field"] = text;
+                //create multipart using filepath, string or bytes
+                var pic = await http.MultipartFile.fromPath("file",(_image).toString());
+
+                //add multipart to request
+                request.files.add(pic);
+                var response = await request.send();
+
+                //Get the response from the server
+                var responseData = await response.stream.toBytes();
+                var responseString = String.fromCharCodes(responseData);
+                print(responseString);
+
                 },
 
             ),

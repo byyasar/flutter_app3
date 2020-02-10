@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter_app3/imageupload.dart';
 import 'package:flutter_app3/kamera.dart';
 import 'gonder.dart';
 
@@ -20,6 +21,7 @@ class MyApp extends StatelessWidget {
       routes: {
         GonderWidget.pageRoute: (context) => GonderWidget(),
         KameraWidget.pageRoute:(context)=>KameraWidget(),
+        MyAppImage.pageRoute:(context)=>MyAppImage(),
       },
     );
   }
