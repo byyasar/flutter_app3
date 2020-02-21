@@ -6,9 +6,11 @@ import 'package:mime/mime.dart';
 import 'dart:convert';
 import 'package:http_parser/http_parser.dart';
 import 'package:toast/toast.dart';
+
 //void main() => runApp(MyApp());
 class MyAppImage extends StatelessWidget {
-  static final String pageRoute = '/yukle';
+  static final String pageRoute = 'yukle';
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -18,19 +20,28 @@ class MyAppImage extends StatelessWidget {
         home: ImageInput());
   }
 }
+
+
 class ImageInput extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
     return _ImageInput();
   }
 }
+
 class _ImageInput extends State<ImageInput> {
   // To store the file provided by the image_picker
   File _imageFile;
+  String _testSonuc;
+  File sonucresimurl;
 
   // To track the file uploading state
   bool _isUploading = false;
-  String baseUrl = "http://192.168.1.3:5000/yukle";
+  String sonuc = "";
+
+  //String baseUrl = "http://192.168.43.161:5000";
+  String resimUrl = "http://10.0.3.2:5000/static/sonuc/";
+  String baseUrls = "http://10.0.3.2:5000/yukle";
 
   void _getImage(BuildContext context, ImageSource source) async {
     File image = await ImagePicker.pickImage(source: source);
@@ -38,7 +49,7 @@ class _ImageInput extends State<ImageInput> {
       _imageFile = image;
     });
     // Closes the bottom sheet
-    Navigator.pop(context);
+
   }
 
   Future<Map<String, dynamic>> _uploadImage(File image) async {
@@ -47,14 +58,14 @@ class _ImageInput extends State<ImageInput> {
     });
     // Find the mime type of the selected file by looking at the header bytes of the file
     final mimeTypeData =
-    lookupMimeType(image.path, headerBytes: [0xFF, 0xD8]).split('/');
+        lookupMimeType(image.path, headerBytes: [0xFF, 0xD8]).split('/');
     // Intilize the multipart request
     final imageUploadRequest =
-    http.MultipartRequest('POST', Uri.parse(baseUrl));
+        http.MultipartRequest('POST', Uri.parse(baseUrls));
     // Attach the file in the request
     final file = await http.MultipartFile.fromPath('file', image.path,
         contentType: MediaType(mimeTypeData[0], mimeTypeData[1]));
-        //contentType: MediaType(mimeTypeData[0], mimeTypeData[1]));
+    //contentType: MediaType(mimeTypeData[0], mimeTypeData[1]));
     // Explicitly pass the extension of the image with request body
     // Since image_picker has some bugs due which it mixes up
     // image extension with file name like this filenamejpge
@@ -71,8 +82,21 @@ class _ImageInput extends State<ImageInput> {
         return null;
       }
       final Map<String, dynamic> responseData = json.decode(response.body);
-      print(response.body.toString());
+      sonuc = "\n" +
+          responseData['ogrno'].toString() +
+          "\n" +
+          responseData['puan'].toString() +
+          "\n" +
+          responseData['cevapanahtari'].toString() +
+          "\n" +
+          responseData['ogrencicevaplar'].toString() +
+          "\n" +
+          responseData['cevapdurum'].toString() +
+          "\n";
+      _testSonuc = resimUrl + responseData['resim'];
+      debugPrint("test:" + _testSonuc);
       _resetState();
+      //debugPrint(responseData.toString());
       return responseData;
     } catch (e) {
       print(e);
@@ -97,14 +121,15 @@ class _ImageInput extends State<ImageInput> {
     setState(() {
       _isUploading = false;
       _imageFile = null;
+      sonucresimurl = File(_testSonuc);
     });
   }
 
   void _openImagePickerModal(BuildContext context) {
-    final flatButtonColor = Theme
-        .of(context)
-        .primaryColor;
+    final flatButtonColor = Theme.of(context).primaryColor;
     print('Image Picker Modal Called');
+    sonuc = "";
+    sonucresimurl = null;
     showModalBottomSheet(
         context: context,
         builder: (BuildContext context) {
@@ -166,46 +191,101 @@ class _ImageInput extends State<ImageInput> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Image Upload Demo'),
-      ),
-      body: Column(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.only(top: 40.0, left: 10.0, right: 10.0),
-            child: OutlineButton(
-              onPressed: () => _openImagePickerModal(context),
-              borderSide:
-              BorderSide(color: Theme
-                  .of(context)
-                  .accentColor, width: 1.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+    return WillPopScope(
+      onWillPop: () {
+        Navigator.pop(context);
+        return Future.value(false);
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Image Upload Demo'),
+        ),
+        body: ListView(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
                 children: <Widget>[
-                  Icon(Icons.camera_alt),
+                  TextFormField(
+                    keyboardType: TextInputType.text,
+
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: baseUrls,
+
+                      labelText: "Sunucu İp Adresi",
+                      prefixIcon: Icon(Icons.network_check),
+                    ),
+                    onSaved: (s)=>baseUrls=s,
+                  ),
+                  Padding(
+                    padding:
+                    const EdgeInsets.only(top: 40.0, left: 10.0, right: 10.0),
+                    child: OutlineButton(
+                      onPressed: () => _openImagePickerModal(context),
+                      borderSide: BorderSide(
+                          color: Theme.of(context).accentColor, width: 1.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Icon(Icons.camera_alt),
+                          SizedBox(
+                            width: 5.0,
+                          ),
+                          Text('Add Image'),
+                        ],
+                      ),
+                    ),
+                  ),
+                  _imageFile == null
+                      ? Text('Please pick an image')
+                      : Image.file(
+                    _imageFile,
+                    fit: BoxFit.cover,
+                    height: 300.0,
+                    alignment: Alignment.topCenter,
+                    width: MediaQuery.of(context).size.width,
+                  ),
+                  _buildUploadBtn(),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  Text("Sonuç:" + sonuc),
                   SizedBox(
                     width: 5.0,
                   ),
-                  Text('Add Image'),
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Image.network(
+                      //'http://10.0.3.2:5000/static/sonuc/157472b9aa854df4ad2f1a9df0cf2722.jpg',
+                      sonucresimurl == null
+                          ? AssetImage('images/TEST.jpg').toString()
+                          : _testSonuc,
+                      scale: 2,
+                      loadingBuilder: (BuildContext context, Widget child,
+                          ImageChunkEvent loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Center(
+                          child: CircularProgressIndicator(
+                            value: loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded /
+                                loadingProgress.expectedTotalBytes
+                                : null,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
                 ],
               ),
             ),
-          ),
-          _imageFile == null
-              ? Text('Please pick an image')
-              : Image.file(
-            _imageFile,
-            fit: BoxFit.cover,
-            height: 300.0,
-            alignment: Alignment.topCenter,
-            width: MediaQuery
-                .of(context)
-                .size
-                .width,
-          ),
-          _buildUploadBtn(),
-        ],
+          ],
+
+        ),
       ),
     );
   }

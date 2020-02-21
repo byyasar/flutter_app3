@@ -9,18 +9,21 @@ import 'gonder.dart';
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Turkish Airlines - (Clone)',
+      title: 'Test Okur v1.0',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primaryColor: Colors.red[700],
       ),
-      home: GonderWidget(),
+      initialRoute: "/",
+
       routes: {
+        '/':(context)=>GonderWidget(),
         GonderWidget.pageRoute: (context) => GonderWidget(),
-        KameraWidget.pageRoute:(context)=>KameraWidget(),
+        KameraWidget.pageRoute:(context)=>KameraWidget("kamera"),
         MyAppImage.pageRoute:(context)=>MyAppImage(),
       },
     );
